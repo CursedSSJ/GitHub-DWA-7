@@ -39,23 +39,27 @@ const createPreview = ({ author, image, title, id }) => {
 
 // This part of the function creates a preview of books and adds them to a document fragment
 // which will eventually append them to the DOM.
-const booksfragment = document.createDocumentFragment();
-let extractedbooks = books
-  .slice(0, 36)
-  .map((book) => ({ ...book, author: authors[book.author] }));
+const populatePage = () => {
+  const booksfragment = document.createDocumentFragment();
+  let extractedbooks = books
+    .slice(0, 36)
+    .map((book) => ({ ...book, author: authors[book.author] }));
 
-for (const { author, image, title, id } of extractedbooks) {
-  const preview = createPreview({
-    author,
-    id,
-    image,
-    title,
-  });
+  for (const { author, image, title, id } of extractedbooks) {
+    const preview = createPreview({
+      author,
+      id,
+      image,
+      title,
+    });
 
-  booksfragment.appendChild(preview);
-}
+    booksfragment.appendChild(preview);
+  }
 
-dataSelectors.listItems.appendChild(booksfragment);
+  dataSelectors.listItems.appendChild(booksfragment);
+};
+
+populatePage();
 
 //This code creates a set of <option> elements representing all existing genres and populates a dropdown list in the DOM.
 
@@ -144,10 +148,9 @@ handleSettingsOverlay();
 //This code is related to the "Show more" button functionality that allows users to load more book previews from a list,
 //as well as see the remaining books that can be loaded
 
-const dataButton = document.querySelector("[data-list-button]");
 const remainingBooks = matches.length - page * BOOKS_PER_PAGE;
 
-dataButton.innerHTML = `
+dataSelectors.databutton.innerHTML = `
       <span>Show more</span>
       <span class="list__remaining">(${remainingBooks})</span>
     `;
@@ -166,14 +169,14 @@ const dataButtonClick = () => {
     fragment.appendChild(preview);
   }
 
-  dataSelectors.listItems.appendChild(booksfragment);
+  dataSelectors.listItems.appendChild(fragment);
 
   const remainingBooks =
     matches.length - newPage * BOOKS_PER_PAGE > 0
       ? matches.length - newPage * BOOKS_PER_PAGE
       : 0;
 
-  dataButton.innerHTML = `
+  dataSelectors.databutton.innerHTML = `
       <span>Show more</span>
       <span class="list__remaining">(${remainingBooks})</span>
     `;
@@ -181,12 +184,12 @@ const dataButtonClick = () => {
   page = newPage;
 };
 
-dataButton.addEventListener("click", dataButtonClick);
+dataSelectors.databutton.addEventListener("click", dataButtonClick);
 
 //This checks how many matches are remaining and if there are none, it disables the button
 
 const remainingMatches = matches.length - page * BOOKS_PER_PAGE;
-dataButton.disabled = !(remainingMatches > 0);
+dataSelectors.databutton.disabled = !(remainingMatches > 0);
 
 const sliceArray = (arr) => {
   let start = 0;
@@ -233,7 +236,8 @@ const searchBooks = (event) => {
     dataListMessage.classList.remove("list__message_show");
   }
 
-  dataSelectors.listItems.appendChild(booksfragment);
+  const dataListItems = document.querySelector("[data-list-items]");
+  dataListItems.innerHTML = "";
 
   const range = sliceArray(result);
 
@@ -254,10 +258,9 @@ const searchBooks = (event) => {
   }
 
   dataListItems.appendChild(datafragment);
-  const dataButton = document.querySelector("[data-list-button]");
 
-  dataButton.disabled = true;
-  dataButton.textContent = `Show more (0)`;
+  dataSelectors.databutton.disabled = true;
+  dataSelectors.databutton.textContent = `Show more (0)`;
 
   window.scrollTo({ top: 0, behavior: "smooth" });
   const dataSearchOverlay = document.querySelector("[data-search-overlay]");

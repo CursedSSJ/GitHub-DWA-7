@@ -1,5 +1,6 @@
 export const dataSelectors = {
   listItems: document.querySelector("[data-list-items]"),
+  databutton: document.querySelector("[data-list-button]"),
   genreList: document.querySelector("[data-search-genres]"),
   authorList: document.querySelector("[data-search-authors]"),
   searchForm: document.querySelector("[data-search-form]"),
