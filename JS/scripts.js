@@ -1,31 +1,10 @@
-//I am importing variables from the data javascript file in order to use it in my scripts file
-import { BOOKS_PER_PAGE, authors, genres, books } from "/data.js";
-//I am creating two variables that I can use in all functions in my scripts file
+import { BOOKS_PER_PAGE, authors, genres, books } from "./data.js";
+import { dataSelectors } from "./selector.js";
+
 const matches = books;
 let page = 1;
 
-//This if statement checks whether the variable books is falsy or not an array.
-//If books does not exist or if it is not an array, it throws an error saying "Source required."
-//It's a safety measure to ensure that the books variable contains a valid array before proceeding with further operations.
-
 if (!books && !Array.isArray(books)) throw new Error("Source required");
-
-//I have created a function that creates a range of the minimum and maximum length of an array
-//that is passed into the function, I set them as two values in a range array and return it
-
-function sliceArray(arr) {
-  let start = 0;
-  let end = arr.length;
-  let range = [start, end];
-
-  if (!range && range.length < 2)
-    throw new Error("Range must be an array with two numbers");
-
-  return range;
-}
-
-// This function  takes an object with properties author, image, title, and id as its argument.
-// It is designed to generate a preview of a book and it's associated content, dynamically within a web page.
 
 const createPreview = ({ author, image, title, id }) => {
   const previewContainer = document.createElement("div");
@@ -76,46 +55,33 @@ for (const { author, image, title, id } of extractedbooks) {
   booksfragment.appendChild(preview);
 }
 
-const listItems = document.querySelector("[data-list-items]");
-listItems.appendChild(booksfragment);
+dataSelectors.listItems.appendChild(booksfragment);
 
 //This code creates a set of <option> elements representing all existing genres and populates a dropdown list in the DOM.
 
-const genresFragment = document.createDocumentFragment();
+const populateDropdown = (list, data, allText) => {
+  const fragment = document.createDocumentFragment();
 
-let genreElement = document.createElement("option");
-genreElement.value = "any";
-genreElement.textContent = "All Genres";
-genresFragment.appendChild(genreElement);
+  // Create the "All" option
+  let allOption = document.createElement("option");
+  allOption.value = "any";
+  allOption.textContent = allText;
+  fragment.appendChild(allOption);
 
-for (const [id, name] of Object.entries(genres)) {
-  const genreElement = document.createElement("option");
-  genreElement.value = id;
-  genreElement.textContent = name;
-  genresFragment.appendChild(genreElement);
-}
+  // Create options for each item in the data object
+  for (const [id, name] of Object.entries(data)) {
+    const optionElement = document.createElement("option");
+    optionElement.value = id;
+    optionElement.textContent = name;
+    fragment.appendChild(optionElement);
+  }
 
-const genreList = document.querySelector("[data-search-genres]");
-genreList.appendChild(genresFragment);
+  // Append the options to the dropdown list
+  list.appendChild(fragment);
+};
 
-//This code creates a set of <option> elements representing all existing authors and populates a dropdown list in the DOM.
-
-const authorsFragment = document.createDocumentFragment();
-
-let authorElement = document.createElement("option");
-authorElement.value = "any";
-authorElement.innerText = "All Authors";
-authorsFragment.appendChild(authorElement);
-
-for (const [id, name] of Object.entries(authors)) {
-  const authorElement = document.createElement("option");
-  authorElement.value = id;
-  authorElement.innerText = name;
-  authorsFragment.appendChild(authorElement);
-}
-
-const authorList = document.querySelector("[data-search-authors]");
-authorList.appendChild(authorsFragment);
+populateDropdown(dataSelectors.genreList, genres, "All Genres");
+populateDropdown(dataSelectors.authorList, authors, "All Authors");
 
 //This is a css object which contains a collection of color values structured in an object format.
 //Each color has variations for both a "day" and a "night" theme,
@@ -200,8 +166,7 @@ const dataButtonClick = () => {
     fragment.appendChild(preview);
   }
 
-  const listItems = document.querySelector("[data-list-items]");
-  listItems.appendChild(fragment);
+  dataSelectors.listItems.appendChild(booksfragment);
 
   const remainingBooks =
     matches.length - newPage * BOOKS_PER_PAGE > 0
@@ -223,52 +188,18 @@ dataButton.addEventListener("click", dataButtonClick);
 const remainingMatches = matches.length - page * BOOKS_PER_PAGE;
 dataButton.disabled = !(remainingMatches > 0);
 
-//These event listeners are attached to different elements in the DOM and define actions to perform when certain events occur.
-const dataSearchCancel = document.querySelector("[data-search-cancel]");
+const sliceArray = (arr) => {
+  let start = 0;
+  let end = arr.length;
+  let range = [start, end];
 
-dataSearchCancel.addEventListener("click", () => {
-  const dataSearchOverlay = document.querySelector("[data-search-overlay]");
-  dataSearchOverlay.open = false;
-});
+  if (!range && range.length < 2)
+    throw new Error("Range must be an array with two numbers");
 
-const dataSettingsCancel = document.querySelector("[data-settings-cancel]");
-
-dataSettingsCancel.addEventListener("click", () => {
-  const dataSettingsOverlay = document.querySelector("[data-settings-overlay]");
-  dataSettingsOverlay.open = false;
-});
-
-const dataSettingsFormSubmit = document.querySelector("[form='settings']");
-
-dataSettingsFormSubmit.addEventListener("submit", () => {});
-
-const dataListClose = document.querySelector("[data-list-close]");
-
-dataListClose.addEventListener("click", () => {
-  const dataListActive = document.querySelector("[data-list-active]");
-  dataListActive.open = false;
-});
-
-const dataheaderSearch = document.querySelector("[data-header-search]");
-
-dataheaderSearch.addEventListener("click", () => {
-  const dataSearchOverlay = document.querySelector("[data-search-overlay]");
-  const dataSearchtitle = document.querySelector("[data-search-title]");
-  dataSearchOverlay.open = true;
-  dataSearchtitle.focus();
-});
-
-const dataHeaderSettings = document.querySelector("[data-header-settings]");
-
-dataHeaderSettings.addEventListener("click", () => {
-  const dataSettingsOverlay = document.querySelector("[data-settings-overlay]");
-  dataSettingsOverlay.open = true;
-});
+  return range;
+};
 
 //This function allows you to search for certain books based off the title, author and genre
-
-const searchForm = document.querySelector("[data-search-form]");
-
 const searchBooks = (event) => {
   event.preventDefault();
   const formData = new FormData(event.target);
@@ -302,8 +233,7 @@ const searchBooks = (event) => {
     dataListMessage.classList.remove("list__message_show");
   }
 
-  const dataListItems = document.querySelector("[data-list-items]");
-  dataListItems.innerHTML = "";
+  dataSelectors.listItems.appendChild(booksfragment);
 
   const range = sliceArray(result);
 
@@ -334,7 +264,7 @@ const searchBooks = (event) => {
   dataSearchOverlay.open = false;
 };
 
-searchForm.addEventListener("submit", searchBooks);
+dataSelectors.searchForm.addEventListener("submit", searchBooks);
 
 //This code handles the preview functionality when a book is selected within a list.
 
@@ -374,3 +304,23 @@ const previewSelectedBook = (event) => {
 };
 
 selectedBook.addEventListener("click", previewSelectedBook);
+
+//These event listeners are attached to different elements in the DOM and define actions to perform when certain events
+
+dataSelectors.dataSearchCancel.addEventListener("click", () => {
+  dataSelectors.dataSearchOverlay.open = false;
+});
+
+dataSelectors.dataSettingsFormSubmit.addEventListener("submit", () => {});
+
+dataSelectors.dataListClose.addEventListener("click", () => {
+  dataSelectors.dataListActive.open = false;
+});
+
+dataSelectors.dataHeaderSearch.addEventListener("click", () => {
+  dataSelectors.dataSearchOverlay.open = true;
+});
+
+dataSelectors.dataHeaderSettings.addEventListener("click", () => {
+  dataSelectors.dataHeaderSettingsOverlay.open = true;
+});

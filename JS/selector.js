@@ -1,0 +1,15 @@
+export const dataSelectors = {
+  listItems: document.querySelector("[data-list-items]"),
+  genreList: document.querySelector("[data-search-genres]"),
+  authorList: document.querySelector("[data-search-authors]"),
+  searchForm: document.querySelector("[data-search-form]"),
+  dataSearchCancel: document.querySelector("[data-search-cancel]"),
+  dataSettingsCancel: document.querySelector("[data-settings-cancel]"),
+  dataSettingsFormSubmit: document.querySelector("[form='settings']"),
+  dataListClose: document.querySelector("[data-list-close]"),
+  dataSearchOverlay: document.querySelector("[data-search-overlay]"),
+  dataHeaderSearch: document.querySelector("[data-header-search]"),
+  dataHeaderSettings: document.querySelector("[data-header-settings]"),
+  dataHeaderSettingsOverlay: document.querySelector("[data-settings-overlay]"),
+  dataListActive: document.querySelector("[data-list-active]"),
+};
